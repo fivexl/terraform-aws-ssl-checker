@@ -11,8 +11,7 @@ import os
 
 
 hook_url = os.environ.get('HOOK_URL')
-dns_host_name = os.environ.get('SSL_CHECK_HOST')
-full_host_name = 'https://' + dns_host_name
+dns_host_name_list = os.environ.get('SSL_CHECK_HOST_LIST').split(',')
 port=443
 HostInfo = namedtuple(field_names='cert hostname peername', typename='HostInfo')
 
@@ -71,11 +70,13 @@ def post_slack_message(hook_url, message):
     print(response.read().decode())
 
 def main(json_input, context):
-    if check_if_available(full_host_name) is True:
-        check_if_expire(dns_host_name,hook_url)
-    else:
-        message = {'text': 'https://{} URL is not available!'.format(dns_host_name)}
-        post_slack_message(hook_url, message)
+    for dns_host_name in dns_host_name_list:
+        full_host_name = 'https://' + dns_host_name
+        if check_if_available(full_host_name) is True:
+            check_if_expire(dns_host_name,hook_url)
+        else:
+            message = {'text': 'https://{} URL is not available!'.format(dns_host_name)}
+            post_slack_message(hook_url, message)
 
 if __name__ == '__main__':
     main('','')
