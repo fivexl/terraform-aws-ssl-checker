@@ -38,20 +38,6 @@ module lambda {
 
   create_package         = false
   local_existing_package = "lambda.zip"
-#  s3_existing_package = {
-#    bucket = "lambda-bucket-288326576660-eu-central-1"
-#    key = "ssl-checker/lambda.zip"
-#    version_id = null
-#  }
-
-#  attach_policy_statements = true
-#  policy_statements = {
-#    s3_read = {
-#      effect    = "Deny",
-#      actions   = ["s3:HeadObject", "s3:GetObject"],
-#      resources = ["arn:aws:s3:::my-bucket/*"]
-#    }
-#  }
 
   environment_variables = {
     HOOK_URL = var.slack_hook_url
