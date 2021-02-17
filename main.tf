@@ -24,10 +24,10 @@ data "aws_iam_policy_document" "sts" {
   }
 }
 
-module lambda {
-  source = "github.com/terraform-aws-modules/terraform-aws-lambda?ref=v1.22.0"
+module "lambda" {
+  source = "github.com/terraform-aws-modules/terraform-aws-lambda?ref=v1.37.0"
 
-  function_name                     = "${var.function_name}"
+  function_name                     = var.function_name
   description                       = "Lambda to monitor app https endpoint availability and SSL certificate validity."
   handler                           = "main.main"
   runtime                           = "python2.7"
@@ -38,10 +38,9 @@ module lambda {
 
   create_package         = false
   local_existing_package = "lambda.zip"
-
   environment_variables = {
-    HOOK_URL = var.slack_hook_url
-    SSL_CHECK_HOST = var.host_dns_name
+    HOOK_URL       = var.slack_hook_url
+    SSL_CHECK_HOST_LIST = var.host_dns_name
   }
 
   tags = var.tags

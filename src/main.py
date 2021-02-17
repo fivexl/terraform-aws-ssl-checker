@@ -21,7 +21,7 @@ def check_if_available(full_host_name):
         urllib2.urlopen(req)
     except urllib2.URLError as e:
         is_available = False
-        print('Error, {} URL is not available, reason: {}'.format(dns_host_name, e.reason))
+        print('Error, {} URL is not available, reason: {}'.format(full_host_name, e.reason))
     else:
         is_available = True
     return is_available

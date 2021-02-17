@@ -10,9 +10,13 @@ import six
 
 from cryptography import utils
 from cryptography.exceptions import (
-    AlreadyFinalized, AlreadyUpdated, NotYetFinalized, UnsupportedAlgorithm,
-    _Reasons
+    AlreadyFinalized,
+    AlreadyUpdated,
+    NotYetFinalized,
+    UnsupportedAlgorithm,
+    _Reasons,
 )
+from cryptography.hazmat.backends import _get_backend
 from cryptography.hazmat.backends.interfaces import CipherBackend
 from cryptography.hazmat.primitives.ciphers import modes
 
@@ -94,11 +98,12 @@ class AEADEncryptionContext(object):
 
 
 class Cipher(object):
-    def __init__(self, algorithm, mode, backend):
+    def __init__(self, algorithm, mode, backend=None):
+        backend = _get_backend(backend)
         if not isinstance(backend, CipherBackend):
             raise UnsupportedAlgorithm(
                 "Backend object does not implement CipherBackend.",
-                _Reasons.BACKEND_MISSING_INTERFACE
+                _Reasons.BACKEND_MISSING_INTERFACE,
             )
 
         if not isinstance(algorithm, CipherAlgorithm):
@@ -230,6 +235,7 @@ class _AEADEncryptionContext(_AEADCipherContext):
     @property
     def tag(self):
         if self._ctx is not None:
-            raise NotYetFinalized("You must finalize encryption before "
-                                  "getting the tag.")
+            raise NotYetFinalized(
+                "You must finalize encryption before " "getting the tag."
+            )
         return self._tag
