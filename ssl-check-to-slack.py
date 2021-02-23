@@ -79,15 +79,15 @@ def main():
     for hostname in hostnames:
         # DNS check. Try to resolve hostname.
         try:
-            logger.info(f'DNS: {hostname} - Testing...')
+            logger.debug(f'DNS: {hostname} - Testing...')
             server_location = ServerNetworkLocationViaDirectConnection.with_ip_address_lookup(hostname, 443)
-            logger.info(f'DNS: {hostname} - OK')
+            logger.debug(f'DNS: {hostname} - OK')
             # Connection check. Try to connect to hostname.
             try:
-                logger.info(f'Connect: {hostname} - Testing...')
+                logger.debug(f'Connect: {hostname} - Testing...')
                 server_info = ServerConnectivityTester().perform(server_location)
                 servers_to_scan.append(server_info)
-                logger.info(f'Connect: {hostname} - OK')
+                logger.debug(f'Connect: {hostname} - OK')
             except ConnectionToServerFailed as e:
                 logger.error(f'Connect: {hostname} - ERROR: {e.error_message}')
                 message = f'URL is not available! Connect error: {e.error_message}'
