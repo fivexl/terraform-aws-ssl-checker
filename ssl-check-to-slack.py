@@ -62,7 +62,7 @@ def format_ssl_check_to_slack_message(hostname, message):
     return json.dumps(message)
 
 
-def main():
+def main(event, context):
     if os.environ.get('DEBUG', False):
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
                             format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
