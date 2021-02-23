@@ -1,0 +1,19 @@
+FROM python:3.6-alpine
+
+RUN apk add --no-cache --virtual .tmp-packeges build-base \
+    && pip install dumb-init==1.2.5\
+    && apk del .tmp-packeges
+
+RUN mkdir /app
+COPY requirements.txt /app/
+RUN pip install -r /app/requirements.txt
+
+COPY ssl-check-to-slack.py /app/
+
+RUN addgroup -S app && adduser -S -G app app
+RUN chown -R app:app /app
+USER app
+
+WORKDIR /app
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
+CMD ["python3", "/app/ssl-check-to-slack.py"]
