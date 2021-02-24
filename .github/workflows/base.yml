@@ -50,3 +50,18 @@ jobs:
         uses: triat/terraform-security-scan@v2.0.2
         with:
           tfsec_actions_comment: false
+
+  python-test:
+    name: PythonTest
+    runs-on: ubuntu-20.04
+    container:
+      image: python:3.8-slim-buster
+    steps:
+      - uses: actions/checkout@master
+      - name: Test
+        run: |
+          pip install -r requirements.txt
+          python3 ssl-check-to-slack.py
+        env:
+          HOOK_URL: "https://hooks.slack.com/services/XXXXXXX/XXXXXXX/XXXXXXXXXXXX"
+          HOSTNAMES: "fivexl.io"
