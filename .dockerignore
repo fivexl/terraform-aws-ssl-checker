@@ -5,3 +5,4 @@ setup.sh
 README.md
 *.tf
 docker-compose.yml
+doc
