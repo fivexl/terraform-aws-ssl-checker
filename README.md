@@ -19,6 +19,10 @@ module "ssl_checker" {
 |------|---------|
 | terraform | >= 0.13 |
 | aws | >= 3.19.0 |
+| python | >= 3.8 |
+| pip | |
+
+*Works on Linux / MacOS / Windows
 
 ## Inputs
 
