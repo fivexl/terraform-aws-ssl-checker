@@ -51,16 +51,30 @@ jobs:
         with:
           tfsec_actions_comment: false
 
-  python-test:
-    name: PythonTest
+  python-check:
+    name: Python Check
     runs-on: ubuntu-20.04
     container:
       image: python:3.8-slim-buster
     steps:
       - uses: actions/checkout@master
-      - name: Test
+      - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install flake8 pytest bandit
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        continue-on-error: true
+      - name: Security check with Bandit
+        run: |
+          bandit -r .
+        continue-on-error: true
+      - name: Run Code
+        run: |
           python3 ssl-check-to-slack.py
         env:
           HOOK_URL: "https://hooks.slack.com/services/XXXXXXX/XXXXXXX/XXXXXXXXXXXX"
