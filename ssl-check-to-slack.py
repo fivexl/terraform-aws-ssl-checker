@@ -71,8 +71,14 @@ def main(event, context):
                             format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     logger.info('Reading configuration...')
     slack_web_hook_url = read_env_variable_or_die('HOOK_URL')
-    hostnames = read_env_variable_or_die('SSL_CHECK_HOST_LIST').split(',')
-    certificate_remaining_days = int(os.environ.get('CERTIFICATE_REMAINING_DAYS', '7'))
+    hostnames = read_env_variable_or_die('HOSTNAMES').split(',')
+    certificate_expiration_notice_days = int(os.environ.get('CERTIFICATE_EXPIRATION_NOTICE_DAYS', '7'))
+    # https://nabla-c0d3.github.io/sslyze/documentation/available-scan-commands.html
+    scan_commands = set(os.environ.get('SCAN_COMMANDS',
+                                       'certificate_info,robot,tls_compression,tls_fallback_scsv,heartbleed,'
+                                       'http_headers ,openssl_ccs_injection,session_renegotiation,'
+                                       'tls_1_1_cipher_suites,tls_1_2_cipher_suites,tls_1_3_cipher_suites'
+                                       ).replace(' ', '').split(',')).union({'certificate_info'})
     logger.info('Configuration is OK')
     servers_to_scan = []
     # First validate that we can connect to the servers we want to scan
@@ -108,19 +114,7 @@ def main(event, context):
     # Then queue some scan commands for each server
     for server_info in servers_to_scan:
         server_scan_req = ServerScanRequest(
-            server_info=server_info, scan_commands={
-                ScanCommand.CERTIFICATE_INFO,
-                ScanCommand.ROBOT,
-                ScanCommand.TLS_COMPRESSION,
-                ScanCommand.TLS_FALLBACK_SCSV,
-                ScanCommand.HEARTBLEED,
-                ScanCommand.HTTP_HEADERS,
-                ScanCommand.OPENSSL_CCS_INJECTION,
-                ScanCommand.SESSION_RENEGOTIATION,
-                ScanCommand.TLS_1_1_CIPHER_SUITES,
-                ScanCommand.TLS_1_2_CIPHER_SUITES,
-                ScanCommand.TLS_1_3_CIPHER_SUITES
-            },
+            server_info=server_info, scan_commands=scan_commands,
         )
         scanner.queue_scan(server_scan_req)
 
@@ -147,7 +141,7 @@ def main(event, context):
                     message = f'SSL certificate not valid before: {not_valid_before}. Now is: {date_current}'
                     post_slack_message(slack_web_hook_url, format_ssl_check_to_slack_message(f'https://{server_scan_result_hostname}', message))
                 delta = not_valid_after - date_current
-                if delta.days <= certificate_remaining_days:
+                if delta.days <= certificate_expiration_notice_days:
                     logger.error(f'TLS: {server_scan_result_hostname} - ERROR: Expires in less than {delta.days} days')
                     message = f'SSL certificate expires in less than: {delta.days} days.'
                     post_slack_message(slack_web_hook_url, format_ssl_check_to_slack_message(f'https://{server_scan_result_hostname}', message))
@@ -171,4 +165,4 @@ def main(event, context):
 
 
 if __name__ == '__main__':
-    main()
+    main("", "")

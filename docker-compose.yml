@@ -6,5 +6,5 @@ services:
       dockerfile: Dockerfile
     environment:
       HOOK_URL: "https://hooks.slack.com/services/XXXXXXXXXXXXXXXXXXXXXXXXXX"
-      SSL_CHECK_HOST_LIST: "fivexl.io"
-      CERTIFICATE_REMAINING_DAYS: "7"
+      HOSTNAMES: "fivexl.io"
+      CERTIFICATE_EXPIRATION_NOTICE_DAYS: "7"
