@@ -21,6 +21,12 @@ variable "hostnames" {
   type        = list(string)
 }
 
+variable "health_check_matcher" {
+  description = "The response HTTP codes to use when checking for a healthy responses from a hostnames. e.g.: \"200,201,202-399\"."
+  type        = string
+  default     = "200-399"
+}
+
 # https://nabla-c0d3.github.io/sslyze/documentation/available-scan-commands.html
 variable "scan_commands" {
   description = "List of scan commands types witch will run against hostnames. Any type supported by SSLyze."

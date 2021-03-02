@@ -32,6 +32,7 @@ module "lambda" {
   environment_variables = {
     HOOK_URL                           = var.slack_hook_url
     HOSTNAMES                          = join(",", var.hostnames)
+    HEALTH_CHECK_MATCHER               = var.health_check_matcher
     CERTIFICATE_EXPIRATION_NOTICE_DAYS = var.certificate_expiration_notice_days
     SCAN_COMMANDS                      = join(",", var.scan_commands)
   }
