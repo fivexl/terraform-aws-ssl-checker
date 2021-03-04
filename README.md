@@ -7,7 +7,7 @@ Simple SSL check and expiring certificates reminder with additional DNS check an
 ```hcl
 module "ssl_checker" {
   source         = "fivexl/ssl-checker/aws"
-  version        = "1.0.1"
+  version        = "1.0.2"
   hostnames      = ["fivexl.io", "google.com"]
   slack_hook_url = "https://hooks.slack.com/services/XXXXXXX/XXXXXXX/XXXXXXXXXXXX"
 }
@@ -22,12 +22,14 @@ module "ssl_checker" {
 | python | >= 3.8 |
 | pip | |
 
-*Works on Linux / MacOS / Windows
+## For Mac OS
+Please use `build_in_docker = true` and build inside docker for avoid nassl problem
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| build_in_docker | Build in docker for avoid problems with local environment | `bool` | `false` | no |
 | certificate_expiration_notice_days | Days prior to the notification of the expired certificate. | `string` | `"7"` | no |
 | cloudwatch_logs_retention_in_days | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `14` | no |
 | function_name | Lambda function name. | `string` | `"ssl-checker"` | no |

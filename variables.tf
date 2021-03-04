@@ -1,3 +1,9 @@
+variable "build_in_docker" {
+  description = "Build in docker for avoid problems with local environment"
+  type        = bool
+  default     = false
+}
+
 variable "certificate_expiration_notice_days" {
   description = "Days prior to the notification of the expired certificate"
   type        = string
