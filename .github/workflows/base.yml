@@ -37,7 +37,7 @@ jobs:
       - name: terraform validate
         run: |
           terraform init -backend=false
-          terraform validate -no-color -var 'host_dns_name="fivexl.io"' -var 'slack_hook_url=""'
+          terraform validate -no-color
         env:
           AWS_DEFAULT_REGION: "eu-central-1"
 
