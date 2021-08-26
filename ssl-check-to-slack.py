@@ -102,6 +102,7 @@ def main(event, context):
                                        'tls_1_1_cipher_suites,tls_1_2_cipher_suites,tls_1_3_cipher_suites'
                                        ).replace(' ', '').split(',')).union({'certificate_info'})
     logger.info('Configuration is OK')
+    logger.info(f'Going to check: {hostnames}')
     servers_to_scan = []
     # First validate that we can connect to the servers we want to scan
     for hostname in hostnames:
