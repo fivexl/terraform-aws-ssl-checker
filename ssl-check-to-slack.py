@@ -11,6 +11,7 @@ from sslyze import Scanner
 from sslyze import ServerScanRequest
 from sslyze import ScanCommand
 from datetime import datetime
+from urllib.parse import urlparse
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,9 +27,9 @@ def read_env_variable_or_die(env_var_name):
     return value
 
 
-def get_response_status(hostname):
+def get_response_status(hostname,endpoint):
     connection = http.client.HTTPSConnection(hostname)
-    connection.request("GET", "/")
+    connection.request("GET", endpoint)
     response = connection.getresponse()
     return response.status
 
@@ -101,19 +102,31 @@ def main(event, context):
                                        'tls_1_1_cipher_suites,tls_1_2_cipher_suites,tls_1_3_cipher_suites'
                                        ).replace(' ', '').split(',')).union({'certificate_info'})
     logger.info('Configuration is OK')
+    logger.info(f'Going to check: {hostnames}')
     servers_to_scan = []
     # First validate that we can connect to the servers we want to scan
     for hostname in hostnames:
         # DNS check. Try to resolve hostname.
         try:
-            logger.debug(f'DNS: {hostname} - Testing...')
-            server_location = ServerNetworkLocationViaDirectConnection.with_ip_address_lookup(hostname, 443)
-            logger.debug(f'DNS: {hostname} - OK')
+            # for urlparse to correctly parse the address it needs a scheme in fron of the domain name
+            # otherwise it might get confused
+            hostname_with_scheme = hostname
+            if not hostname_with_scheme.startswith('https://'):
+                hostname_with_scheme = f'https://{hostname}'
+                logger.debug(f'prepend scheme to {hostname} so it is {hostname_with_scheme}')
+            hostname_parsed = urlparse(hostname_with_scheme)
+            logger.debug(f'hostname pasrsing result: {hostname_parsed}')
+            path = "/" if hostname_parsed.path == "" else hostname_parsed.path
+            host = hostname_parsed.netloc
+            logger.debug(f'parsed {hostname} to host {host} and path {path}')
+            logger.debug(f'DNS: {host} - Testing...')
+            server_location = ServerNetworkLocationViaDirectConnection.with_ip_address_lookup(host, 443)
+            logger.debug(f'DNS: {host} - OK')
             # Connection check. Try to connect to hostname.
             try:
                 logger.debug(f'Connect: {hostname} - Testing...')
                 server_info = ServerConnectivityTester().perform(server_location)
-                response_status = get_response_status(hostname)
+                response_status = get_response_status(host, path)
                 if response_status not in health_check_matcher:
                     raise ConnectionToServerFailed(server_info.server_location, server_info.network_configuration,
                                                    error_message=f'HTTP Error. Status code: {response_status}')
