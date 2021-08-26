@@ -11,6 +11,7 @@ from sslyze import Scanner
 from sslyze import ServerScanRequest
 from sslyze import ScanCommand
 from datetime import datetime
+from urllib.parse import urlparse
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,9 +27,9 @@ def read_env_variable_or_die(env_var_name):
     return value
 
 
-def get_response_status(hostname):
+def get_response_status(hostname,endpoint):
     connection = http.client.HTTPSConnection(hostname)
-    connection.request("GET", "/")
+    connection.request("GET", endpoint)
     response = connection.getresponse()
     return response.status
 
@@ -113,7 +114,10 @@ def main(event, context):
             try:
                 logger.debug(f'Connect: {hostname} - Testing...')
                 server_info = ServerConnectivityTester().perform(server_location)
-                response_status = get_response_status(hostname)
+                endpoint_to_check = urlparse(hostname).path
+                if endpoint_to_check == "":
+                    endpoint_to_check = "/"
+                response_status = get_response_status(hostname, urlparse(hostname).path)
                 if response_status not in health_check_matcher:
                     raise ConnectionToServerFailed(server_info.server_location, server_info.network_configuration,
                                                    error_message=f'HTTP Error. Status code: {response_status}')
