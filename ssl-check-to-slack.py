@@ -114,10 +114,8 @@ def main(event, context):
             try:
                 logger.debug(f'Connect: {hostname} - Testing...')
                 server_info = ServerConnectivityTester().perform(server_location)
-                endpoint_to_check = urlparse(hostname).path
-                if endpoint_to_check == "":
-                    endpoint_to_check = "/"
-                response_status = get_response_status(hostname, urlparse(hostname).path)
+                path = "/" if urlparse(hostname).path == "" else urlparse(hostname).path
+                response_status = get_response_status(hostname, path)
                 if response_status not in health_check_matcher:
                     raise ConnectionToServerFailed(server_info.server_location, server_info.network_configuration,
                                                    error_message=f'HTTP Error. Status code: {response_status}')
