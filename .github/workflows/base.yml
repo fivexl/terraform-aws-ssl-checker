@@ -75,8 +75,4 @@ jobs:
         continue-on-error: true
       - name: Run Code
         run: |
-          python3 ssl-check-to-slack.py
-        env:
-          HOOK_URL: "https://hooks.slack.com/services/XXXXXXX/XXXXXXX/XXXXXXXXXXXX"
-          HOSTNAMES: "fivexl.io"
-          HEALTH_CHECK_MATCHER: "200-399"
+          bash test.sh

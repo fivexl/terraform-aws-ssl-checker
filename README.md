@@ -66,14 +66,3 @@ Configuration is done via env variables
 # Example message
 
 ![Example](doc/example.jpg)
-
-# Development
-
-```
-bash setup.sh
-source env/bin/activate
-export SCAN_COMMANDS="certificate_info,robot,tls_compression,tls_fallback_scsv,heartbleed,http_headers,openssl_ccs_injection,session_renegotiation,tls_1_1_cipher_suites,tls_1_2_cipher_suites,tls_1_3_cipher_suites"
-export CERTIFICATE_EXPIRATION_NOTICE_DAYS=7
-export HEALTH_CHECK_MATCHER=200-399
-HOOK_URLS="opa" DEBUG=true HOSTNAMES="google.com,g00gle.com" python3 ssl-check-to-slack.py
-```
