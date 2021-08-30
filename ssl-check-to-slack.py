@@ -93,15 +93,20 @@ def main(event, context):
                             format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     logger.info('Reading configuration...')
     slack_web_hook_urls = read_env_variable_or_die('HOOK_URLS').split(',')
+    logger.debug(f'slack_web_hook_urls: {slack_web_hook_urls}')
     hostnames = read_env_variable_or_die('HOSTNAMES').split(',')
+    logger.debug(f'hostnames: {hostnames}')
     health_check_matcher = split_matcher(str(os.environ.get('HEALTH_CHECK_MATCHER', '200-399,201')))
+    logger.debug(f'health_check_matcher: {health_check_matcher}')
     certificate_expiration_notice_days = int(os.environ.get('CERTIFICATE_EXPIRATION_NOTICE_DAYS', '7'))
+    logger.debug(f'certificate_expiration_notice_days: {certificate_expiration_notice_days}')
     # https://nabla-c0d3.github.io/sslyze/documentation/available-scan-commands.html
     scan_commands = set(os.environ.get('SCAN_COMMANDS',
                                        'certificate_info,robot,tls_compression,tls_fallback_scsv,heartbleed,'
                                        'http_headers ,openssl_ccs_injection,session_renegotiation,'
                                        'tls_1_1_cipher_suites,tls_1_2_cipher_suites,tls_1_3_cipher_suites'
                                        ).replace(' ', '').split(',')).union({'certificate_info'})
+    logger.debug(f'scan_commands: {scan_commands}')
     logger.info('Configuration is OK')
     logger.info(f'Going to check: {hostnames}')
     servers_to_scan = []
