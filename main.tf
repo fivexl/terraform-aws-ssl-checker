@@ -7,7 +7,7 @@ resource "aws_cloudwatch_event_rule" "rule" {
 
 module "lambda" {
   source          = "terraform-aws-modules/lambda/aws"
-  version         = "2.7.0"
+  version         = "2.11.0"
   function_name   = var.function_name
   description     = "Lambda to monitor app https endpoint availability and SSL certificate validity."
   handler         = "ssl-check-to-slack.main"
