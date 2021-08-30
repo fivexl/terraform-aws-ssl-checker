@@ -47,5 +47,5 @@ resource "aws_cloudwatch_event_target" "target" {
 }
 
 locals {
-  hook_urls = concat([var.slack_hook_url], var.additional_slack_hook_urls)
+  hook_urls = concat([nonsensitive(var.slack_hook_url)], nonsensitive(var.additional_slack_hook_urls))
 }
