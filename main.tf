@@ -31,7 +31,7 @@ module "lambda" {
     }
   }
   environment_variables = {
-    HOOK_URL                           = var.slack_hook_url
+    HOOK_URL                           = join(",", local.hook_urls)
     HOSTNAMES                          = join(",", var.hostnames)
     HEALTH_CHECK_MATCHER               = var.health_check_matcher
     CERTIFICATE_EXPIRATION_NOTICE_DAYS = var.certificate_expiration_notice_days
@@ -44,4 +44,8 @@ resource "aws_cloudwatch_event_target" "target" {
   rule      = aws_cloudwatch_event_rule.rule.name
   target_id = var.function_name
   arn       = module.lambda.lambda_function_arn
+}
+
+locals {
+  hook_urls = concat([var.slack_hook_url], var.additional_slack_hook_urls)
 }

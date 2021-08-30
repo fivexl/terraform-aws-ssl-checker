@@ -49,16 +49,17 @@ def split_matcher(matcher):
 
 # Slack web hook example
 # https://hooks.slack.com/services/XXXXXXX/XXXXXXX/XXXXXXXXXXXX
-def post_slack_message(hook_url, message):
+def post_slack_message(hook_urls, message):
     logger.info(f'Posting the following message:\n{message}')
     headers = {'Content-type': 'application/json'}
-    connection = http.client.HTTPSConnection('hooks.slack.com')
-    connection.request('POST',
-                       hook_url.replace('https://hooks.slack.com', ''),
-                       message,
-                       headers)
-    response = connection.getresponse()
-    print(response.read().decode())
+    for hook_url in hook_urls:
+        connection = http.client.HTTPSConnection('hooks.slack.com')
+        connection.request('POST',
+                        hook_url.replace('https://hooks.slack.com', ''),
+                        message,
+                        headers)
+        response = connection.getresponse()
+        print(response.read().decode())
 
 
 def format_error_to_slack_message(error_message):
@@ -91,7 +92,7 @@ def main(event, context):
         logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                             format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     logger.info('Reading configuration...')
-    slack_web_hook_url = read_env_variable_or_die('HOOK_URL')
+    slack_web_hook_urls = read_env_variable_or_die('HOOK_URLS').split(',')
     hostnames = read_env_variable_or_die('HOSTNAMES').split(',')
     health_check_matcher = split_matcher(str(os.environ.get('HEALTH_CHECK_MATCHER', '200-399,201')))
     certificate_expiration_notice_days = int(os.environ.get('CERTIFICATE_EXPIRATION_NOTICE_DAYS', '7'))
@@ -135,18 +136,18 @@ def main(event, context):
             except ConnectionToServerFailed as e:
                 logger.error(f'Connect: {hostname} - ERROR: {e.error_message}')
                 message = f'URL is not available! Connect error: {e.error_message}'
-                post_slack_message(slack_web_hook_url,
+                post_slack_message(slack_web_hook_urls,
                                    format_ssl_check_to_slack_message(f'https://{hostname}', message))
             except Exception as e:
                 logger.error(f'Connect: {hostname} - ERROR: {e}')
-                post_slack_message(slack_web_hook_url, format_error_to_slack_message(str(e)))
+                post_slack_message(slack_web_hook_urls, format_error_to_slack_message(str(e)))
         except ServerHostnameCouldNotBeResolved as e:
             logger.error(f'DNS: {hostname} - ERROR: {e}')
             message = f'URL is not available! DNS error: {e}'
-            post_slack_message(slack_web_hook_url, format_ssl_check_to_slack_message(f'https://{hostname}', message))
+            post_slack_message(slack_web_hook_urls, format_ssl_check_to_slack_message(f'https://{hostname}', message))
         except Exception as e:
             logger.error(f'DNS: {hostname} - ERROR: {e}')
-            post_slack_message(slack_web_hook_url, format_error_to_slack_message(str(e)))
+            post_slack_message(slack_web_hook_urls, format_error_to_slack_message(str(e)))
 
     scanner = Scanner()
 
@@ -178,14 +179,14 @@ def main(event, context):
                     logger.error(f'TLS: {server_scan_result_hostname} - ERROR: Not valid before: {not_valid_before}. '
                                  f'Now is: {date_current}')
                     message = f'SSL certificate not valid before: {not_valid_before}. Now is: {date_current}'
-                    post_slack_message(slack_web_hook_url,
+                    post_slack_message(slack_web_hook_urls,
                                        format_ssl_check_to_slack_message(f'https://{server_scan_result_hostname}',
                                                                          message))
                 delta = not_valid_after - date_current
                 if delta.days <= certificate_expiration_notice_days:
                     logger.error(f'TLS: {server_scan_result_hostname} - ERROR: Expires in less than {delta.days} days')
                     message = f'SSL certificate expires in less than: {delta.days} days.'
-                    post_slack_message(slack_web_hook_url,
+                    post_slack_message(slack_web_hook_urls,
                                        format_ssl_check_to_slack_message(f'https://{server_scan_result_hostname}',
                                                                          message))
                 else:
@@ -193,12 +194,12 @@ def main(event, context):
             if not any(subject_matches_hostname):
                 logger.error(f'TLS: {server_scan_result_hostname} - ERROR: No subject matches')
                 message = 'SSL certificate no subject matches.'
-                post_slack_message(slack_web_hook_url,
+                post_slack_message(slack_web_hook_urls,
                                    format_ssl_check_to_slack_message(f'https://{server_scan_result_hostname}', message))
             if not all(chain_has_valid_order):
                 logger.error(f'TLS: {server_scan_result_hostname} - ERROR: Chain has no valid order')
                 message = 'SSL certificate chain has no valid order.'
-                post_slack_message(slack_web_hook_url,
+                post_slack_message(slack_web_hook_urls,
                                    format_ssl_check_to_slack_message(f'https://{server_scan_result_hostname}', message))
         except KeyError:
             pass
@@ -206,7 +207,7 @@ def main(event, context):
         for scan_command, error in server_scan_result.scan_commands_errors.items():
             logger.error(f'{scan_command}: {server_scan_result_hostname} - ERROR: {error.exception_trace}')
             message = f'{scan_command} failed with error: {error.exception_trace}'
-            post_slack_message(slack_web_hook_url,
+            post_slack_message(slack_web_hook_urls,
                                format_ssl_check_to_slack_message(f'https://{server_scan_result_hostname}', message))
 
 

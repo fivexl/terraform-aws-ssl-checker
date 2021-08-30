@@ -55,6 +55,12 @@ variable "slack_hook_url" {
   type        = string
 }
 
+variable "additional_slack_hook_urls" {
+  description = "List of slack webhook urls in case if you need to send notifications into multiple channels"
+  type        = list(string)
+  default     = []
+}
+
 variable "tags" {
   description = "Tags to apply on created resources"
   type        = map(string)
