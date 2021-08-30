@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      HOOK_URL: "https://hooks.slack.com/services/XXXXXXXXXXXXXXXXXXXXXXXXXX"
+      HOOK_URLS: "https://hooks.slack.com/services/XXXXXXXXXXXXXXXXXXXXXXXXXX"
       HOSTNAMES: "fivexl.io"
       HEALTH_CHECK_MATCHER: "200-399"
       CERTIFICATE_EXPIRATION_NOTICE_DAYS: "7"
