@@ -31,7 +31,7 @@ module "lambda" {
     }
   }
   environment_variables = {
-    HOOK_URL                           = join(",", local.hook_urls)
+    HOOK_URLS                          = join(",", local.hook_urls)
     HOSTNAMES                          = join(",", var.hostnames)
     HEALTH_CHECK_MATCHER               = var.health_check_matcher
     CERTIFICATE_EXPIRATION_NOTICE_DAYS = var.certificate_expiration_notice_days
