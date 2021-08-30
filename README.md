@@ -38,6 +38,7 @@ Please use `build_in_docker = true` and build inside docker for avoid nassl prob
 | scan_commands | List of scan commands types witch will run against hostnames. Any type supported by [SSLyze](https://nabla-c0d3.github.io/sslyze/documentation/available-scan-commands.html). | `list(string)` | `["certificate_info", "robot", "tls_compression", "tls_fallback_scsv", "heartbleed","http_headers", "openssl_ccs_injection", "session_renegotiation", "tls_1_1_cipher_suites","tls_1_2_cipher_suites", "tls_1_3_cipher_suites"]` | no |
 | schedule_expression | The scheduling expression. How often check hostnames. For example, `cron(0/5 * * * ? *)` or `rate(5 minutes)`. | `string` | `"cron(0/5 * * * ? *)"` | no |
 | slack_hook_url | Slack incoming webhook URL. | `string` | | yes |
+| additional_slack_hook_urls | Additional Slack incoming webhook URLs. Just in case if you need to send events to multiple channels | `list(string)` | `[]` | no |
 | tags | Tags to apply on created resources. | `map(string)` | `{}` | no |
 
 ## Outputs
@@ -51,7 +52,7 @@ Please use `build_in_docker = true` and build inside docker for avoid nassl prob
 
 Configuration is done via env variables
 
-* `HOOK_URL` - Slack web hook URL where to send events. This is a mandatory parameter.
+* `HOOK_URLS` - Comma separated string of Slack web hook URLs where to send events. This is a mandatory parameter.
 * `HOSTNAMES` - Comma separated string with domain names. This is a mandatory parameter.
 * `HEALTH_CHECK_MATCHER` -  The response HTTP codes to use when checking for a healthy responses from a hostnames. You can specify multiple values (for example, "200,202" for HTTP(s)) or a range of values (for example, "200-299" or "0-99"). Default - `'200-399'`
 * `CERTIFICATE_EXPIRATION_NOTICE_DAYS` -  How many days before the expiration date of the certificate to send reminders. Default - `'7'`
@@ -74,5 +75,5 @@ source env/bin/activate
 export SCAN_COMMANDS="certificate_info,robot,tls_compression,tls_fallback_scsv,heartbleed,http_headers,openssl_ccs_injection,session_renegotiation,tls_1_1_cipher_suites,tls_1_2_cipher_suites,tls_1_3_cipher_suites"
 export CERTIFICATE_EXPIRATION_NOTICE_DAYS=7
 export HEALTH_CHECK_MATCHER=200-399
-HOOK_URL="opa" DEBUG=true HOSTNAMES="google.com,g00gle.com" python3 ssl-check-to-slack.py
+HOOK_URLS="opa" DEBUG=true HOSTNAMES="google.com,g00gle.com" python3 ssl-check-to-slack.py
 ```
