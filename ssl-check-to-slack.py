@@ -50,9 +50,9 @@ def split_matcher(matcher):
 # Slack web hook example
 # https://hooks.slack.com/services/XXXXXXX/XXXXXXX/XXXXXXXXXXXX
 def post_slack_message(hook_urls, message):
-    logger.info(f'Posting the following message:\n{message}')
     headers = {'Content-type': 'application/json'}
     for hook_url in hook_urls:
+        logger.info(f'Sending the following message to {len(hook_url[:-10])*"#"+hook_url[-10:]}:\n {json.dumps(message)}')
         connection = http.client.HTTPSConnection('hooks.slack.com')
         connection.request('POST',
                         hook_url.replace('https://hooks.slack.com', ''),
