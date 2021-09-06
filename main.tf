@@ -47,5 +47,12 @@ resource "aws_cloudwatch_event_target" "target" {
 }
 
 locals {
-  hook_urls = concat([nonsensitive(var.slack_hook_url)], nonsensitive(var.additional_slack_hook_urls))
+  hook_urls = concat([nonsensitive(var.slack_hook_url)], local.additional_slack_hook_urls)
+}
+
+# nonsensitive fails on empty list like this
+# Invalid value for "value" parameter: the given value is not sensitive, so this call is redundant.
+# thus have to do this
+locals {
+    additional_slack_hook_urls = length(var.additional_slack_hook_urls) != 0 ? nonsensitive(var.additional_slack_hook_urls) : var.additional_slack_hook_urls
 }
