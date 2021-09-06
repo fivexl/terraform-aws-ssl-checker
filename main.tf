@@ -54,5 +54,5 @@ locals {
 # Invalid value for "value" parameter: the given value is not sensitive, so this call is redundant.
 # thus have to do this
 locals {
-    additional_slack_hook_urls = length(var.additional_slack_hook_urls) != 0 ? nonsensitive(var.additional_slack_hook_urls) : var.additional_slack_hook_urls
+  additional_slack_hook_urls = length(var.additional_slack_hook_urls) != 0 ? nonsensitive(var.additional_slack_hook_urls) : var.additional_slack_hook_urls
 }
